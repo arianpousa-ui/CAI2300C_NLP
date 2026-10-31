@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crowd Read</title>
+<meta name="description" content="Score thousands of unlabeled movie comments at once: audience score, what people praise and complain about, and which comments to answer first. An NLP class project built on a TF-IDF and logistic regression model.">
+<meta name="theme-color" content="#16151a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2316151a'/%3E%3Ccircle cx='9' cy='16' r='3' fill='%23b8323e'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23f2b233'/%3E%3Ccircle cx='23' cy='16' r='3' fill='%234cc9a6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap head-in">
+    <a class="logo" href="#top" aria-label="Crowd Read home"><span class="bulbs" aria-hidden="true"><i></i><i></i><i></i></span>Crowd Read</a>
+    <nav aria-label="Sections">
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#uses">Who it's for</a>
+      <a href="#limits">Limits</a>
+      <a href="https://github.com/arianpousa-ui/CAI2300C_NLP" class="gh">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero wrap">
+  <div class="hero-copy">
+    <p class="eyebrow">Opening-weekend audience research</p>
+    <h1>Read the crowd before the box office does.</h1>
+    <p class="lede">The person who writes a review already knows how they feel. The studio reading 20,000 posts, forum threads and survey answers doesn't, and none of them come with a star rating. Crowd Read scores every comment, tells you which parts of the film people love or hate, and puts the comments that need an answer at the top.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#demo">Run it on 50 comments</a>
+      <a class="btn" href="#how">See the model</a>
+    </div>
+  </div>
+  <aside class="marquee" aria-live="polite">
+    <div class="marquee-in">
+      <p class="eyebrow">Now showing · <span id="heroFilm">The Lantern Keeper</span></p>
+      <p class="big-score"><span id="heroScore">—</span><small>%</small></p>
+      <p class="score-cap">audience score from <b id="heroCount">—</b> unlabeled comments</p>
+      <div class="hero-aspects" id="heroAspects"></div>
+      <p class="fine">Live: scored in your browser by the same model as the course notebook.</p>
+    </div>
+  </aside>
+</section>
+
+<!-- GAP -->
+<section class="gap wrap">
+  <div class="gap-grid">
+    <div><b>1 writer</b><span>knows their own opinion. Classifying one review tells them nothing new.</span></div>
+    <div><b>20,000 comments</b><span>arrive in a film's first weekend, from places with no stars: social posts, forums, exit surveys.</span></div>
+    <div><b>A few hours</b><span>is all a marketing team has to decide what to change in week two's campaign.</span></div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo wrap" id="demo">
+  <div class="sec-head">
+    <p class="eyebrow">Demo</p>
+    <h2>The pulse board</h2>
+    <p>Use the sample comments, paste your own, or upload a file. Everything runs in your browser; nothing is sent anywhere.</p>
+  </div>
+
+  <div class="panel input-panel">
+    <div class="tabs" role="tablist" aria-label="Comment source">
+      <button role="tab" aria-selected="true" data-src="sample" id="tab-sample">Sample: The Lantern Keeper</button>
+      <button role="tab" aria-selected="false" data-src="paste" id="tab-paste">Paste comments</button>
+      <button role="tab" aria-selected="false" data-src="file" id="tab-file">Upload a file</button>
+    </div>
+    <div class="src" id="src-sample">
+      <p class="muted">50 invented opening-weekend comments about a fictional film. Real chatter is messy, so these include mixed opinions, sarcasm and comments the model gets wrong.</p>
+    </div>
+    <div class="src" id="src-paste" hidden>
+      <label for="pasteBox" class="lbl">One comment per line</label>
+      <textarea id="pasteBox" rows="7" placeholder="Paste comments here, one per line"></textarea>
+    </div>
+    <div class="src" id="src-file" hidden>
+      <label class="drop" id="drop" for="fileIn"><b>Drop a .csv or .txt file</b><span class="muted">CSV: pick the column with the comments. TXT: one comment per line. Read in your browser only.</span><span class="btn small">Choose file</span></label>
+      <input type="file" id="fileIn" accept=".csv,.txt,text/csv,text/plain" hidden>
+      <div class="row" id="colRow" hidden><label for="colSel" class="lbl">Comment column</label><select id="colSel"></select></div>
+      <p class="muted" id="fileMsg"></p>
+    </div>
+    <div class="row run-row"><button class="btn primary" id="runBtn">Read the crowd</button><span class="muted" id="runMsg"></span></div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="tiles" id="tiles"></div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="ph"><h3>What people are talking about</h3><span class="muted">Each clause scored on its own</span></div>
+        <div id="aspects" class="aspects"></div>
+        <p class="muted small">Topics are found by keywords (acting, plot, pacing…). The bar shows the share of those mentions that read as positive.</p>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>How sure the model is</h3><span class="muted">Comments by P(positive)</span></div>
+        <div id="hist"></div>
+        <div class="legend"><span><i class="sw neg"></i>Negative</span><span><i class="sw mid"></i>Hard to call (40–60%)</span><span><i class="sw pos"></i>Positive</span></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="ph"><h3>Answer these first</h3><span class="muted">Most clearly negative</span></div>
+        <ol class="clist" id="worst"></ol>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>Read these yourself</h3><span class="muted">The model can't decide</span></div>
+        <ol class="clist" id="unsure"></ol>
+      </div>
+    </div>
+
+    <div class="panel" id="explain">
+      <div class="ph"><h3>Why the model said that</h3><span class="muted">Click any comment above, or type one</span></div>
+      <textarea id="oneBox" rows="2" aria-label="Comment to explain"></textarea>
+      <div id="oneOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how wrap" id="how">
+  <div class="sec-head">
+    <p class="eyebrow">How it works</p>
+    <h2>Eight models tried, one kept</h2>
+    <p>The model comes from the course's algorithm-harness notebook: 50,000 IMDB reviews, cleaned and turned into numbers, then used to train and grade eight classifiers on the same 10,000 held-out reviews.</p>
+  </div>
+  <ol class="pipeline">
+    <li><b>Clean</b><span>Lowercase; strip HTML tags, links, punctuation and numbers.</span><code>clean_text()</code></li>
+    <li><b>Tokenize</b><span>Split each review into words.</span><code>nltk.word_tokenize</code></li>
+    <li><b>Drop stop words</b><span>Remove filler words like "the" and "of".</span><code>stopwords.words('english')</code></li>
+    <li><b>Lemmatize</b><span>Reduce words to dictionary form: "reviewers" → "reviewer".</span><code>WordNetLemmatizer</code></li>
+    <li><b>TF-IDF</b><span>Keep the 5,000 most frequent words; weight each by how distinctive it is.</span><code>TfidfVectorizer(max_features=5000)</code></li>
+    <li><b>Classify</b><span>Add up a learned weight per word and turn the total into a probability.</span><code>LogisticRegression</code></li>
+  </ol>
+  <div class="grid2 how-grid">
+    <div class="panel">
+      <div class="ph"><h3>The harness results</h3><span class="muted">Test set of 10,000 reviews</span></div>
+      <div id="harness"></div>
+      <div class="legend"><span><i class="sw acc"></i>Accuracy</span><span><i class="sw f1"></i>F1</span></div>
+    </div>
+    <div class="panel why">
+      <h3>Why logistic regression</h3>
+      <p>It won on every metric: <b>88.5% accuracy</b> and <b>0.887 F1</b>, ahead of CatBoost, LightGBM and XGBoost. It also trains in seconds and every prediction can be explained word by word, which matters when someone asks why a comment was flagged.</p>
+      <p>Measured from its probabilities rather than its yes/no answers, its ROC-AUC is <b id="aucProba">0.957</b>. (The notebook computes ROC-AUC from 0/1 predictions, which gives 0.885.)</p>
+      <p>The trained weights, all 5,000 of them, ship with this page as a 200 KB file, so it scores comments without a server.</p>
+    </div>
+  </div>
+</section>
+
+<!-- USES -->
+<section class="uses wrap" id="uses">
+  <div class="sec-head">
+    <p class="eyebrow">Who it's for</p>
+    <h2>People who read a crowd, not a review</h2>
+  </div>
+  <div class="use-list">
+    <article><h3>Studio marketing</h3><p>By Sunday night, see whether the cast or the visuals are carrying the film and cut week two's trailer around it. If the ending is what people complain about, stop teasing it.</p></article>
+    <article><h3>Theater programmers</h3><p>Decide which titles keep their big screens for a second week from how local audiences talk about them, not only from ticket counts.</p></article>
+    <article><h3>Streaming and sequels</h3><p>Before greenlighting season two, find out which parts viewers keep praising and which they keep calling slow or confusing.</p></article>
+    <article><h3>Community and social teams</h3><p>Start the day with the clearly negative comments at the top of the queue, and hand the "can't decide" ones to a person.</p></article>
+  </div>
+</section>
+
+<!-- LIMITS -->
+<section class="limits wrap" id="limits">
+  <div class="sec-head">
+    <p class="eyebrow">Limits</p>
+    <h2>Where it gets it wrong</h2>
+    <p>Trust the totals more than any single verdict. About one comment in nine is misread.</p>
+  </div>
+  <div class="limit-grid">
+    <div class="panel"><h3>"Not" disappears</h3><p>NLTK's stop-word list includes <code>not</code>, so the pipeline turns "not good" into "good". In the sample, <i>"Mara Quill is brilliant. The rest of the movie is not."</i> scores as positive.</p></div>
+    <div class="panel"><h3>Trained on long reviews</h3><p>IMDB reviews average about 230 words. Short posts give the model only a few words to go on, so their scores drift toward the middle.</p></div>
+    <div class="panel"><h3>Only two answers</h3><p>The model knows positive and negative. Neutral or off-topic comments still get pushed to one side; the "read these yourself" list catches some of them.</p></div>
+    <div class="panel"><h3>Sarcasm and contrast</h3><p>"Great acting can't save a script this weak" is a word count to the model, not an argument. Clause-level scoring helps with "but", not with irony.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-in">
+    <p><b>Crowd Read</b> · a class project for CAI2300C Natural Language Processing by Arian Pousa.</p>
+    <p class="muted">Model trained on the IMDB 50k movie review dataset with scikit-learn. Sample comments and the film <i>The Lantern Keeper</i> are invented. <a href="https://github.com/arianpousa-ui/CAI2300C_NLP">Code on GitHub</a></p>
+  </div>
+</footer>
+
+<script src="assets/model.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

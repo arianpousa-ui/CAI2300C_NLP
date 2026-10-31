@@ -1,0 +1,17 @@
+[
+ {
+  "text": "The acting was wonderful but the ending dragged on forever.",
+  "processed": "acting wonderful ending dragged forever",
+  "p_positive": 0.8431589397631305
+ },
+ {
+  "text": "Worst movie I have seen in years, a total waste of money!",
+  "processed": "worst movie seen year total waste money",
+  "p_positive": 0.00018740087670834245
+ },
+ {
+  "text": "Visually stunning <br /> and the soundtrack gave me chills. 10/10 https://t.co/x",
+  "processed": "visually stunning soundtrack gave chill",
+  "p_positive": 0.8255949190571847
+ }
+]

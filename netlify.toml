@@ -1,0 +1,9 @@
+# Static site: no build step. Netlify publishes the repo root.
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
